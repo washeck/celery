@@ -9,24 +9,24 @@ class Mediator(threading.Thread):
     """Thread continuously passing tasks in the queue
     to the pool."""
 
-    def __init__(self, bucket_queue, callback):
+    def __init__(self, bucket_queues, callback):
         super(Mediator, self).__init__()
         self._shutdown = threading.Event()
         self._stopped = threading.Event()
-        self.bucket_queue = bucket_queue
+        self.bucket_queue = bucket_queues
         self.callback = callback
 
     def run(self):
         while True:
             if self._shutdown.isSet():
                 break
-            # This blocks until there's a message in the queue.
             try:
-                task = self.bucket_queue.get(timeout=1)
-            except QueueEmpty:
-                pass
-            else:
-                self.callback(task)
+                for bucket_queue in self.bucket_queues.values():
+                    task = bucket_queue.get_nowait()
+                    except QueueEmpty:
+                        pass
+                    else:
+                        self.callback(task)
         self._stopped.set() # indicate that we are stopped
 
     def stop(self):
@@ -40,12 +40,12 @@ class PeriodicWorkController(threading.Thread):
     :class:`celery.task.PeriodicTask` tasks waiting for execution,
     and executes them."""
 
-    def __init__(self, bucket_queue, hold_queue):
+    def __init__(self, bucket_queues, hold_queue):
         super(PeriodicWorkController, self).__init__()
         self._shutdown = threading.Event()
         self._stopped = threading.Event()
         self.hold_queue = hold_queue
-        self.bucket_queue = bucket_queue
+        self.bucket_queues = bucket_queue
 
     def run(self):
         """Run when you use :meth:`Thread.start`"""
@@ -63,7 +63,7 @@ class PeriodicWorkController(threading.Thread):
         except QueueEmpty:
             return
         if datetime.now() >= eta:
-            self.bucket_queue.put(task)
+            self.bucket_queue[task.task_name].put(task)
         else:
             self.hold_queue.put((task, eta))
 
