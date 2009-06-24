@@ -6,6 +6,7 @@ from celery.messaging import TaskConsumer
 from celery.conf import DAEMON_CONCURRENCY, DAEMON_LOG_FILE
 from celery.log import setup_logger
 from celery.pool import TaskPool
+from celery.registry import tasks
 from Queue import Queue
 import traceback
 import logging
@@ -13,10 +14,10 @@ import logging
 
 class AMQPListener(object):
 
-    def __init__(self, bucket_queue, hold_queue, logger):
+    def __init__(self, bucket_queues, hold_queue, logger):
         self.amqp_connection = None
         self.task_consumer = None
-        self.bucket_queue = bucket_queue
+        self.bucket_queues = bucket_queues
         self.hold_queue = hold_queue
         self.logger = logger
 
@@ -37,7 +38,7 @@ class AMQPListener(object):
         if eta:
            self.hold_queue.put((task, eta))
         else:
-            self.bucket_queue.put(task)
+            self.bucket_queues[task.task_name].put(task)
 
     def close_connection(self):
         """Close the AMQP connection."""
@@ -113,16 +114,17 @@ class WorkController(object):
         self.logger = setup_logger(loglevel, logfile)
 
         # Queues
-        self.bucket_queue = Queue()
+        self.bucket_queues = dict([(task_name, Queue())
+                                    for task_name in tasks.keys()])
         self.hold_queue = Queue()
 
         # Threads+Pool
         self.periodicworkcontroller = PeriodicWorkController(
-                                                    self.bucket_queue,
+                                                    self.bucket_queues,
                                                     self.hold_queue)
         self.pool = TaskPool(self.concurrency, logger=self.logger)
-        self.mediator = Mediator(self.bucket_queue, self.process_task)
-        self.amqp_listener = AMQPListener(self.bucket_queue, self.hold_queue,
+        self.mediator = Mediator(self.bucket_queues, self.process_task)
+        self.amqp_listener = AMQPListener(self.bucket_queues, self.hold_queue,
                                           logger=self.logger)
 
     def run(self):
