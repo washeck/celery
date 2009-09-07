@@ -6,7 +6,8 @@ Jobs Executable by the Worker Server.
 from celery.registry import tasks
 from celery.exceptions import NotRegistered
 from celery.execute import ExecuteWrapper
-from celery.utils import noop, fun_takes_kwargs
+from flower.utils import noop
+from celery.utils import fun_takes_kwargs
 from django.core.mail import mail_admins
 import multiprocessing
 import socket

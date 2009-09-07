@@ -1,7 +1,8 @@
 import unittest
 import sys
 
-from celery.datastructures import PositionQueue, ExceptionInfo
+from celery.datastructures import PositionQueue
+from flower.datastructures import ExceptionInfo
 
 
 class TestPositionQueue(unittest.TestCase):

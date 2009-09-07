@@ -3,12 +3,13 @@ from celery.conf import AMQP_CONNECTION_TIMEOUT
 from celery.result import AsyncResult, EagerResult
 from celery.messaging import TaskPublisher
 from celery.registry import tasks
-from celery.utils import gen_unique_id, noop, fun_takes_kwargs
+from flower.utils import noop
+from celery.utils import gen_unique_id, fun_takes_kwargs
 from functools import partial as curry
 from datetime import datetime, timedelta
 from multiprocessing import get_logger
+from flower.datastructures import ExceptionInfo
 from celery.exceptions import RetryTaskError
-from celery.datastructures import ExceptionInfo
 from celery.backends import default_backend
 from celery.loaders import current_loader
 from celery.monitoring import TaskTimerStats

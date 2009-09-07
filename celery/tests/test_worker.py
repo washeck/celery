@@ -3,11 +3,12 @@ from Queue import Queue, Empty
 from carrot.connection import BrokerConnection
 from celery.messaging import TaskConsumer
 from celery.worker.job import TaskWrapper
-from celery.worker import AMQPListener, WorkController
+from celery.worker.components import AMQPListener
+from celery.worker import WorkController
 from multiprocessing import get_logger
 from carrot.backends.base import BaseMessage
 from celery import registry
-from celery.serialization import pickle
+from flower.serialization import pickle
 from celery.utils import gen_unique_id
 from datetime import datetime, timedelta
 

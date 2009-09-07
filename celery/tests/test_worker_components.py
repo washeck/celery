@@ -4,8 +4,9 @@ import multiprocessing
 from Queue import Queue, Empty
 from datetime import datetime, timedelta
 
-from celery.worker.controllers import Mediator, PeriodicWorkController
-from celery.worker.controllers import BackgroundThread
+from flower.components import FlowerComponent
+from flower.components import Mediator
+from celery.worker.components import PeriodicWorkController
 
 
 class MockTask(object):
@@ -16,27 +17,27 @@ class MockTask(object):
         self.value = value
 
 
-class MyBackgroundThread(BackgroundThread):
+class MyFlowerComponent(FlowerComponent):
 
     def on_iteration(self):
         import time
         time.sleep(1)
 
 
-class TestBackgroundThread(unittest.TestCase):
+class TestFlowerComponent(unittest.TestCase):
 
     def test_on_iteration(self):
         self.assertRaises(NotImplementedError,
-                BackgroundThread().on_iteration)
+                FlowerComponent(Queue(), Queue()).on_iteration)
 
     def test_run(self):
-        t = MyBackgroundThread()
+        t = MyFlowerComponent(Queue(), Queue())
         t._shutdown.set()
         t.run()
         self.assertTrue(t._stopped.isSet())
 
     def test_start_stop(self):
-        t = MyBackgroundThread()
+        t = MyFlowerComponent(Queue(), Queue())
         t.start()
         self.assertFalse(t._shutdown.isSet())
         self.assertFalse(t._stopped.isSet())
@@ -78,7 +79,7 @@ class TestPeriodicWorkController(unittest.TestCase):
     def test_process_hold_queue(self):
         bucket_queue = Queue()
         hold_queue = Queue()
-        m = PeriodicWorkController(bucket_queue, hold_queue)
+        m = PeriodicWorkController(bucket_queue, hold_queue, 1, None)
         m.process_hold_queue()
 
         scratchpad = {}
@@ -105,11 +106,11 @@ class TestPeriodicWorkController(unittest.TestCase):
     def test_run_periodic_tasks(self):
         bucket_queue = Queue()
         hold_queue = Queue()
-        m = PeriodicWorkController(bucket_queue, hold_queue)
+        m = PeriodicWorkController(bucket_queue, hold_queue, 1, None)
         m.run_periodic_tasks()
 
     def test_on_iteration(self):
         bucket_queue = Queue()
         hold_queue = Queue()
-        m = PeriodicWorkController(bucket_queue, hold_queue)
+        m = PeriodicWorkController(bucket_queue, hold_queue, 1, None)
         m.on_iteration()

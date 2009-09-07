@@ -2,8 +2,8 @@ import unittest
 import logging
 import itertools
 import time
-from celery.pool import TaskPool
-from celery.datastructures import ExceptionInfo
+from flower.pool import TaskPool
+from flower.datastructures import ExceptionInfo
 import sys
 
 

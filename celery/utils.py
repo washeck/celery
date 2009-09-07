@@ -8,10 +8,10 @@ from itertools import repeat
 from inspect import getargspec
 from functools import partial as curry
 from uuid import UUID, uuid4, _uuid_generate_random
+from flower.utils import noop
 import ctypes
 import operator
 
-noop = lambda *args, **kwargs: None
 
 
 def chunks(it, n):

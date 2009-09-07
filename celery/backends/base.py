@@ -1,9 +1,9 @@
 """celery.backends.base"""
 import time
 import operator
-from celery.serialization import pickle
-from celery.serialization import get_pickled_exception
-from celery.serialization import get_pickleable_exception
+from flower.serialization import pickle
+from flower.serialization import get_pickled_exception
+from flower.serialization import get_pickleable_exception
 from celery.exceptions import TimeoutError
 
 

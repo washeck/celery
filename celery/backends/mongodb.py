@@ -4,7 +4,7 @@ import random
 from datetime import datetime, timedelta
 
 from django.core.exceptions import ImproperlyConfigured
-from celery.serialization import pickle
+from flower.serialization import pickle
 from celery.backends.base import BaseBackend
 from celery.loaders import settings
 from celery.conf import TASK_RESULT_EXPIRES

@@ -3,10 +3,10 @@ import sys
 import unittest
 from celery.execute import ExecuteWrapper
 from celery.worker.job import TaskWrapper
-from celery.datastructures import ExceptionInfo
+from flower.datastructures import ExceptionInfo
 from celery.models import TaskMeta
 from celery.registry import tasks, NotRegistered
-from celery.pool import TaskPool
+from flower.pool import TaskPool
 from celery.utils import gen_unique_id
 from carrot.backends.base import BaseMessage
 from StringIO import StringIO

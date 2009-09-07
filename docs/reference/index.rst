@@ -26,8 +26,7 @@
     celery.messaging
     celery.worker
     celery.worker.job
-    celery.worker.controllers
-    celery.pool
+    celery.worker.components
     celery.supervisor
     celery.backends
     celery.backends.base

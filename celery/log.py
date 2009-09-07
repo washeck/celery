@@ -3,6 +3,7 @@ import os
 import sys
 import time
 import logging
+from flower.log import setup_logger as flower_setup_logger
 from celery.conf import LOG_FORMAT, DAEMON_LOG_LEVEL
 
 
@@ -13,22 +14,9 @@ def setup_logger(loglevel=DAEMON_LOG_LEVEL, logfile=None, format=LOG_FORMAT,
 
     Returns logger object.
     """
-    import multiprocessing
-    logger = multiprocessing.get_logger()
-    logger.setLevel(loglevel)
-    if logger.handlers:
-        return logger
-    if logfile:
-        if hasattr(logfile, "write"):
-            log_file_handler = logging.StreamHandler(logfile)
-        else:
-            log_file_handler = logging.FileHandler(logfile)
-        formatter = logging.Formatter(format)
-        log_file_handler.setFormatter(formatter)
-        logger.addHandler(log_file_handler)
-    else:
-        multiprocessing.log_to_stderr()
-    return logger
+    return flower_setup_logger(loglevel=loglevel,
+                               logfile=logfile,
+                               format=format)
 
 
 def emergency_error(logfile, message):

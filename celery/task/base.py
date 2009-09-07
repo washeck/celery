@@ -6,7 +6,7 @@ from celery.result import TaskSetResult, EagerResult
 from celery.execute import apply_async, delay_task, apply
 from celery.utils import gen_unique_id, get_full_cls_name
 from celery.registry import tasks
-from celery.serialization import pickle
+from flower.serialization import pickle
 from celery.exceptions import MaxRetriesExceededError, RetryTaskError
 from datetime import timedelta
 

@@ -6,7 +6,6 @@ Custom Datastructures
 from UserList import UserList
 from Queue import Queue
 from Queue import Empty as QueueEmpty
-import traceback
 
 
 class PositionQueue(UserList):
@@ -46,38 +45,6 @@ class PositionQueue(UserList):
         """Returns the filled slots as a list."""
         return filter(lambda v: not isinstance(v, self.UnfilledPosition),
                       self.data)
-
-
-class ExceptionInfo(object):
-    """Exception wrapping an exception and its traceback.
-
-    :param exc_info: The exception tuple info as returned by
-        :func:`traceback.format_exception`.
-
-
-    .. attribute:: exception
-
-        The original exception.
-
-    .. attribute:: traceback
-
-        A traceback from the point when :attr:`exception` was raised.
-
-    """
-
-    def __init__(self, exc_info):
-        type_, exception, tb = exc_info
-        self.exception = exception
-        self.traceback = '\n'.join(traceback.format_exception(*exc_info))
-
-    def __str__(self):
-        return str(self.exception)
-
-    def __repr__(self):
-        return "<%s.%s: %s" % (
-                self.__class__.__module__,
-                self.__class__.__name__,
-                str(self.exception))
 
 
 def consume_queue(queue):

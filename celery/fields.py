@@ -5,7 +5,7 @@ Custom Django Model Fields.
 """
 from django.db import models
 from django.conf import settings
-from celery.serialization import pickle
+from flower.serialization import pickle
 
 
 class PickledObject(str):
