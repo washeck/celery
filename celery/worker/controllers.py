@@ -6,7 +6,8 @@ Worker Controller Threads
 from celery.backends import default_periodic_status_backend
 from Queue import Empty as QueueEmpty
 from datetime import datetime
-from multiprocessing import get_logger
+from celery.utils import noop
+import multiprocessing
 import traceback
 import threading
 import time
@@ -22,8 +23,14 @@ class BackgroundThread(threading.Thread):
     """
     is_infinite = True
 
-    def __init__(self):
+    def __init__(self, bucket_queue, hold_queue, concurrency=1,
+            task_callback=noop, logger=None):
         super(BackgroundThread, self).__init__()
+        self.bucket_queue = bucket_queue
+        self.hold_queue = hold_queue
+        self.concurrency = concurrency
+        self.task_callback = task_callback
+        self.logger = logger
         self._shutdown = threading.Event()
         self._stopped = threading.Event()
         self.setDaemon(True)
@@ -63,6 +70,9 @@ class BackgroundThread(threading.Thread):
         self._shutdown.set()
         self._stopped.wait() # block until this thread is done
 
+    def get_logger(self):
+        return self.logger or multiprocessing.get_logger()
+
 
 class Mediator(BackgroundThread):
     """Thread continuously sending tasks in the queue to the pool.
@@ -78,13 +88,8 @@ class Mediator(BackgroundThread):
 
     """
 
-    def __init__(self, bucket_queue, callback):
-        super(Mediator, self).__init__()
-        self.bucket_queue = bucket_queue
-        self.callback = callback
-
     def on_iteration(self):
-        logger = get_logger()
+        logger = self.get_logger()
         try:
             logger.debug("Mediator: Trying to get message from bucket_queue")
             # This blocks until there's a message in the queue.
@@ -95,7 +100,7 @@ class Mediator(BackgroundThread):
         else:
             logger.debug("Mediator: Running callback for task: %s[%s]" % (
                 task.task_name, task.task_id))
-            self.callback(task)
+            self.task_callback(task)
 
 
 class PeriodicWorkController(BackgroundThread):
@@ -109,17 +114,12 @@ class PeriodicWorkController(BackgroundThread):
 
     """
 
-    def __init__(self, bucket_queue, hold_queue):
-        super(PeriodicWorkController, self).__init__()
-        self.hold_queue = hold_queue
-        self.bucket_queue = bucket_queue
-
     def on_start(self):
         """Do backend-specific periodic task initialization."""
         default_periodic_status_backend.init_periodic_tasks()
 
     def on_iteration(self):
-        logger = get_logger()
+        logger = self.get_logger()
         logger.debug("PeriodicWorkController: Running periodic tasks...")
         try:
             self.run_periodic_tasks()
@@ -133,7 +133,7 @@ class PeriodicWorkController(BackgroundThread):
         time.sleep(1)
 
     def run_periodic_tasks(self):
-        logger = get_logger()
+        logger = self.get_logger()
         applied = default_periodic_status_backend.run_periodic_tasks()
         for task, task_id in applied:
             logger.debug(
@@ -143,7 +143,7 @@ class PeriodicWorkController(BackgroundThread):
     def process_hold_queue(self):
         """Finds paused tasks that are ready for execution and move
         them to the :attr:`bucket_queue`."""
-        logger = get_logger()
+        logger = self.get_logger()
         try:
             logger.debug(
                 "PeriodicWorkController: Getting next task from hold queue..")

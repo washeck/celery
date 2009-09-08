@@ -3,7 +3,8 @@ from Queue import Queue, Empty
 from carrot.connection import BrokerConnection
 from celery.messaging import TaskConsumer
 from celery.worker.job import TaskWrapper
-from celery.worker import AMQPListener, WorkController
+from celery.worker.amqp import AMQPListener
+from celery.worker import WorkController
 from multiprocessing import get_logger
 from carrot.backends.base import BaseMessage
 from celery import registry
