@@ -10,7 +10,7 @@ from celery.log import setup_logger
 from celery import conf
 
 DEFAULT_COMPONENTS = ["flower.components.Mediator",
-        #"celery.worker.components.PeriodicWorkController",
+                      "celery.worker.components.PeriodicWorkController",
                       "celery.worker.components.AMQPListener"]
 
 
