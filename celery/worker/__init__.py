@@ -5,17 +5,18 @@ The Multiprocessing Worker Server
 Documentation for this module is in ``docs/reference/celery.worker.rst``.
 
 """
-from celery.worker.controllers import Mediator, PeriodicWorkController
-from celery.log import setup_logger
 from celery.pool import TaskPool
-from Queue import Queue
+from celery.worker.controllers import Mediator
+from celery.worker.controllers import PeriodicWorkController
+from celery.worker.amqp import AMQPListener
+from celery.log import setup_logger
 from celery import conf
+from Queue import Queue
+
 import traceback
 import logging
 
-DEFAULT_COMPONENTS = ["celery.worker.controllers.Mediator",
-                      "celery.worker.controllers.PeriodicWorkController",
-                      "celery.worker.amqp.AMQPListener"]
+DEFAULT_COMPONENTS = [Mediator, PeriodicWorkController, AMQPListener]
 
 
 class WorkController(object):
@@ -117,9 +118,11 @@ class WorkController(object):
 
 
     def import_component(self, fqn):
-        mod_name, comp_name = fqn.rsplit(".", 1)
-        mod = __import__(mod_name, {}, {}, [comp_name])
-        return getattr(mod, comp_name)
+        if isinstance(fqn, basestring):
+            mod_name, comp_name = fqn.rsplit(".", 1)
+            mod = __import__(mod_name, {}, {}, [comp_name])
+            return getattr(mod, comp_name)
+        return fqn
 
     def start(self):
         """Starts the workers main loop."""
