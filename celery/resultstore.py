@@ -17,13 +17,13 @@ class ResultStore(AMQPBackend):
         get_super = getattr(superself, action)
         return get_super(task_id)
 
-    def get_status(self, task_id)
+    def get_status(self, task_id):
         return self._get_entity(task_id, "status", "get_status")
 
-    def get_result(self, task_id)
+    def get_result(self, task_id):
         return self._get_entity(task_id, "result", "get_result")
 
-    def get_traceback(self, task_id)
+    def get_traceback(self, task_id):
         return self._get_entity(task_id, "traceback", "get_traceback")
 
     def _get_task_meta_for(self, task_id):

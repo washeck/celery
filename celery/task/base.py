@@ -12,7 +12,7 @@ from celery.registry import tasks
 from celery.resultstore import result_store
 from celery.messaging import TaskPublisher, TaskConsumer
 from celery.exceptions import MaxRetriesExceededError, RetryTaskError
-from celery.serialization import picklee
+from celery.serialization import pickle
 
 
 class TaskType(type):
