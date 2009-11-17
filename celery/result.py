@@ -6,7 +6,7 @@ Asynchronous result types.
 import time
 from itertools import imap
 
-from celery.backends import default_backend
+from celery.resultstore import result_store
 from celery.exceptions import TimeoutError
 from celery.datastructures import PositionQueue
 
@@ -143,7 +143,7 @@ class AsyncResult(BaseAsyncResult):
     """
 
     def __init__(self, task_id):
-        super(AsyncResult, self).__init__(task_id, backend=default_backend)
+        super(AsyncResult, self).__init__(task_id, backend=result_store)
 
 
 class TaskSetResult(object):

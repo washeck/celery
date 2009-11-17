@@ -67,3 +67,7 @@ DefaultBackend = get_default_backend_cls()
 
 """
 default_backend = DefaultBackend()
+
+result_store = default_backend
+
+amqp_backend = get_backend_cls("amqp")

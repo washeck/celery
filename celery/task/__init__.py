@@ -8,7 +8,7 @@ from carrot.connection import DjangoBrokerConnection
 from celery.conf import AMQP_CONNECTION_TIMEOUT
 from celery.execute import apply_async
 from celery.registry import tasks
-from celery.backends import default_backend
+from celery.resultstore import result_store
 from celery.messaging import TaskConsumer
 from celery.task.base import Task, TaskSet, PeriodicTask
 from celery.task.base import ExecuteRemoteTask, AsynchronousMapTask
@@ -41,7 +41,7 @@ def is_successful(task_id):
     :rtype: bool
 
     """
-    return default_backend.is_successful(task_id)
+    return result_store.is_successful(task_id)
 
 
 def dmap(func, args, timeout=None):

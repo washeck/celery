@@ -9,10 +9,10 @@ from celery.utils import gen_unique_id, get_full_cls_name
 from celery.result import TaskSetResult, EagerResult
 from celery.execute import apply_async, apply
 from celery.registry import tasks
-from celery.backends import default_backend
+from celery.resultstore import result_store
 from celery.messaging import TaskPublisher, TaskConsumer
 from celery.exceptions import MaxRetriesExceededError, RetryTaskError
-from celery.serialization import pickle
+from celery.serialization import picklee
 
 
 class TaskType(type):
@@ -149,7 +149,7 @@ class Task(object):
     default_retry_delay = 3 * 60
     serializer = conf.TASK_SERIALIZER
     rate_limit = conf.DEFAULT_RATE_LIMIT
-    backend = default_backend
+    backend = result_store
 
     MaxRetriesExceededError = MaxRetriesExceededError
 
