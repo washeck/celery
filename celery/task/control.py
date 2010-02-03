@@ -83,3 +83,31 @@ def broadcast(command, arguments=None, destination=None, connection=None,
         broadcast.send(command, arguments, destination=destination)
     finally:
         broadcast.close()
+
+
+@with_connection
+def ping(destination, connection=None, connect_timeout=None,
+        **kwargs):
+    from celery.messaging import PingResponseConsumer
+
+    consumer = PingResponseConsumer(connection)
+    broadcast("ping", destination=destination, connection=connection,
+                      arguments={"sender": consumer.exchange,
+                                 "sender_route": consumer.routing_key})
+
+    _exit = [False]
+    def callback(message_data, message):
+        pong = message_data["pong"]
+        print("Pong: %s" % pong)
+        if pong == destination:
+            _exit[0] = True
+        message.ack()
+
+    consumer.register_callback(callback)
+    it = consumer.iterconsume()
+
+    for pong in it:
+        if _exit:
+            break
+
+

@@ -104,6 +104,31 @@ class BroadcastPublisher(Publisher):
         super(BroadcastPublisher, self).send({"control": arguments})
 
 
+class PingResponsePublisher(Publisher):
+    exchange = conf.PING_EXCHANGE
+    exchange_type = "direct"
+
+    def pong(self, hostname):
+        self.send({"pong": hostname})
+
+
+class PingResponseConsumer(Consumer):
+    exchange = conf.PING_EXCHANGE
+    exchange_type = "direct"
+    routing_key = gen_unique_id()
+    auto_delete = True
+    delivery_mode = "non-persistent"
+    durable = False
+
+    def __init__(self, *args, **kwargs):
+        hostname = kwargs.pop("hostname", None) or socket.gethostname()
+        self.queue = "%s_%s" % (self.queue, hostname)
+        super(PingResponseConsumer, self).__init__(*args, **kwargs)
+
+
+
+
+
 class BroadcastConsumer(Consumer):
     """Consume broadcast commands"""
     queue = conf.BROADCAST_QUEUE

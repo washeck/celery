@@ -49,6 +49,7 @@ _DEFAULTS = {
     "CELERY_EVENT_EXCHANGE_TYPE": "direct",
     "CELERY_EVENT_ROUTING_KEY": "celeryevent",
     "CELERY_RESULT_EXCHANGE": "celeryresults",
+    "CELERY_PING_EXCHANGE": "celeryping",
 }
 
 _DEPRECATION_FMT = """
@@ -171,6 +172,9 @@ EVENT_QUEUE = _get("CELERY_EVENT_QUEUE")
 EVENT_EXCHANGE = _get("CELERY_EVENT_EXCHANGE")
 EVENT_EXCHANGE_TYPE = _get("CELERY_EVENT_EXCHANGE_TYPE")
 EVENT_ROUTING_KEY = _get("CELERY_EVENT_ROUTING_KEY")
+
+# :--- Ping queue settings                          <-   --   --- - ----- -- #
+PING_EXCHANGE = _get("CELERY_PING_EXCHANGE")
 
 # :--- Broker connections                           <-   --   --- - ----- -- #
 BROKER_CONNECTION_TIMEOUT = _get("CELERY_BROKER_CONNECTION_TIMEOUT",

@@ -3,6 +3,7 @@ import socket
 from celery import log
 from celery.registry import tasks
 from celery.worker.revoke import revoked
+from celery.messaging import with_connection, PingResponsePublisher
 
 TASK_INFO_FIELDS = ("exchange", "routing_key", "rate_limit")
 
@@ -29,6 +30,17 @@ class Control(object):
         """Revoke task by task id."""
         revoked.add(task_id)
         self.logger.warn("Task %s revoked." % task_id)
+
+    @expose
+    @with_connection
+    def ping(self, sender, sender_route, connection=None,
+            connect_timeout=None, **kwargs):
+        responder = PingResponsePublisher(connection, exchange=sender,
+                                          routing_key=sender_route)
+        try:
+            responder.pong(self.hostname)
+        finally:
+            responder.close()
 
     @expose
     def rate_limit(self, task_name, rate_limit, **kwargs):
