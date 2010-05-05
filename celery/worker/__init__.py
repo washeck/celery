@@ -3,6 +3,7 @@
 The Multiprocessing Worker Server
 
 """
+import os
 import socket
 import logging
 import traceback
@@ -29,6 +30,14 @@ def process_initializer():
 
     platform.reset_signal("SIGTERM")
     platform.set_mp_process_title("celeryd")
+
+    # On Windows we need to run a dummy command 'celeryinit'
+    # for django to fully initialize after fork()
+    if not callable(getattr(os, "fork", None)):
+        from django.core.management import execute_manager
+        settings_mod = os.environ.get("DJANGO_SETTINGS_MODULE", "settings")
+        project_settings = __import__(settings_mod, {}, {}, [''])
+        execute_manager(project_settings, argv=['manage.py', 'celeryinit'])
 
     # This is for windows and other platforms not supporting
     # fork(). Note that init_worker makes sure it's only
